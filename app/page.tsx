@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import type { MonthlySummary } from "../lib/types";
 
 const currencyFormatter = new Intl.NumberFormat("es-ES", {
@@ -11,20 +10,8 @@ const numberFormatter = new Intl.NumberFormat("es-ES", {
   maximumFractionDigits: 2
 });
 
-function getBaseUrl() {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  const headerList = headers();
-  const host = headerList.get("host") ?? "localhost:3000";
-  const protocol = host.startsWith("localhost") ? "http" : "https";
-
-  return `${protocol}://${host}`;
-}
-
 async function fetchSummary(): Promise<MonthlySummary & { sources: Record<string, number> }> {
-  const response = await fetch(`${getBaseUrl()}/api/summary`, {
+  const response = await fetch("/api/summary", {
     cache: "no-store"
   });
 
