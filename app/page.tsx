@@ -26,15 +26,43 @@ function getBaseUrl() {
 }
 
 async function fetchSummary(): Promise<MonthlySummary & { sources: Record<string, number> }> {
-  const response = await fetch(`${getBaseUrl()}/api/summary`, {
-    cache: "no-store"
-  });
+  try {
+    const response = await fetch(`${getBaseUrl()}/api/summary`, {
+      cache: "no-store"
+    });
 
-  if (!response.ok) {
-    throw new Error("No se pudo cargar el resumen");
+    if (!response.ok) {
+      throw new Error("No se pudo cargar el resumen");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error loading summary", error);
+    return {
+      month: new Date().toISOString().slice(0, 7),
+      totals: {
+        gridImportKwh: 0,
+        gridExportKwh: 0,
+        pvProductionKwh: 0,
+        loadConsumptionKwh: 0
+      },
+      costs: {
+        energyCost: 0,
+        exportCredit: 0,
+        fixedCharges: 0,
+        electricTax: 0,
+        vat: 0,
+        total: 0
+      },
+      discrepancyPercent: 0,
+      daily: [],
+      sources: {
+        datadisImportKwh: 0,
+        datadisDays: 0,
+        huaweiDays: 0
+      }
+    };
   }
-
-  return response.json();
 }
 
 export default async function Page() {

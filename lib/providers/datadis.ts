@@ -59,6 +59,17 @@ function buildMockDaily(month: string): DailyEnergyRecord[] {
   });
 }
 
+function buildMockMonthlyData(month: string): DatadisMonthlyData {
+  const daily = buildMockDaily(month);
+  const datadisImportKwh = daily.reduce((total, record) => total + record.gridImportKwh, 0);
+
+  return {
+    month,
+    datadisImportKwh: Number(datadisImportKwh.toFixed(2)),
+    daily
+  };
+}
+
 function normalizeDatadisDaily(records: DatadisConsumptionRecord[], month: string): DailyEnergyRecord[] {
   if (records.length === 0) {
     return buildMockDaily(month);
@@ -209,37 +220,36 @@ export async function fetchDatadisMonthlyData(month: string): Promise<DatadisMon
     (token || (process.env.DATADIS_USERNAME && process.env.DATADIS_PASSWORD));
 
   if (!hasEnv) {
-    const daily = buildMockDaily(month);
+    return buildMockMonthlyData(month);
+  }
+
+  try {
+    const authToken = token ?? (await fetchDatadisToken());
+    const consumptionUrl = buildDatadisUrl(month);
+    const response = await fetch(consumptionUrl, {
+      headers: {
+        Authorization: `Bearer ${authToken}`
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(DEFAULT_AUTH_TIMEOUT_MS)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Datadis consumption error: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const records = resolveRecords(payload);
+    const daily = normalizeDatadisDaily(records, month);
     const datadisImportKwh = daily.reduce((total, record) => total + record.gridImportKwh, 0);
+
     return {
       month,
       datadisImportKwh: Number(datadisImportKwh.toFixed(2)),
       daily
     };
+  } catch (error) {
+    console.error("Datadis provider failed, using mock data.", error);
+    return buildMockMonthlyData(month);
   }
-
-  const authToken = token ?? (await fetchDatadisToken());
-  const consumptionUrl = buildDatadisUrl(month);
-  const response = await fetch(consumptionUrl, {
-    headers: {
-      Authorization: `Bearer ${authToken}`
-    },
-    cache: "no-store",
-    signal: AbortSignal.timeout(DEFAULT_AUTH_TIMEOUT_MS)
-  });
-
-  if (!response.ok) {
-    throw new Error(`Datadis consumption error: ${response.status}`);
-  }
-
-  const payload = await response.json();
-  const records = resolveRecords(payload);
-  const daily = normalizeDatadisDaily(records, month);
-  const datadisImportKwh = daily.reduce((total, record) => total + record.gridImportKwh, 0);
-
-  return {
-    month,
-    datadisImportKwh: Number(datadisImportKwh.toFixed(2)),
-    daily
-  };
 }
