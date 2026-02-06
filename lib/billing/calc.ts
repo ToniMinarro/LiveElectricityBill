@@ -6,7 +6,7 @@ export function calculateMonthlySummary(
   month: string,
   daily: DailyEnergyRecord[],
   tariff: TariffConfig,
-  ideImportKwh: number
+  datadisImportKwh: number
 ): MonthlySummary {
   const totals = daily.reduce(
     (acc, record) => {
@@ -35,9 +35,9 @@ export function calculateMonthlySummary(
   const vat = (subtotal + electricTax) * tariff.vatRate;
   const total = subtotal + electricTax + vat;
 
-  const discrepancyPercent = ideImportKwh === 0
+  const discrepancyPercent = datadisImportKwh === 0
     ? 0
-    : ((ideImportKwh - totals.gridImportKwh) / ideImportKwh) * 100;
+    : ((datadisImportKwh - totals.gridImportKwh) / datadisImportKwh) * 100;
 
   return {
     month,

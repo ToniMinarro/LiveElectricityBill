@@ -18,7 +18,9 @@ function getBaseUrl() {
 
   const headerList = headers();
   const host = headerList.get("host") ?? "localhost:3000";
-  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const protocol = (host.startsWith("localhost") || host.startsWith("127.0.0.1") || host.startsWith("0.0.0.0"))
+    ? "http"
+    : "https";
 
   return `${protocol}://${host}`;
 }
@@ -42,7 +44,7 @@ export default async function Page() {
     <main>
       <header>
         <h1>Factura eléctrica en curso</h1>
-        <p>Estimación en tiempo real con datos de i-DE e inversor Huawei.</p>
+        <p>Estimación en tiempo real con datos de Datadis e inversor Huawei.</p>
       </header>
 
       <section className="section">
@@ -53,8 +55,8 @@ export default async function Page() {
             <span className="badge">Mes {summary.month}</span>
           </div>
           <div className="card">
-            <h2>Consumo red (i-DE)</h2>
-            <strong>{numberFormatter.format(summary.sources.ideImportKwh)} kWh</strong>
+            <h2>Consumo red (Datadis)</h2>
+            <strong>{numberFormatter.format(summary.sources.datadisImportKwh)} kWh</strong>
             <span className="badge">Fuente principal</span>
           </div>
           <div className="card">
@@ -63,7 +65,7 @@ export default async function Page() {
             <span className="badge">Huawei</span>
           </div>
           <div className="card">
-            <h2>Desfase IDE vs Huawei</h2>
+            <h2>Desfase Datadis vs Huawei</h2>
             <strong>{numberFormatter.format(summary.discrepancyPercent)} %</strong>
             <span className="badge">Comparativa</span>
           </div>
@@ -117,7 +119,7 @@ export default async function Page() {
 
         <p className="footer-note">
           Este resumen es un ejemplo con datos simulados. Sustituye los conectores por las APIs reales
-          de i-DE/Datadis y Huawei FusionSolar.
+          de Datadis y Huawei FusionSolar.
         </p>
       </section>
     </main>
