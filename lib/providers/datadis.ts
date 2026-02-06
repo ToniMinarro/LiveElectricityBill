@@ -12,24 +12,37 @@ type DatadisAuthResponse = {
 };
 
 type DatadisConsumptionRecord = {
+  dateTime?: string;
+  datetime?: string;
   date?: string;
   day?: string;
   value?: number;
   energy?: number;
   consumption?: number;
+  consumptionKwh?: number;
   importKwh?: number;
 };
 
 const DEFAULT_AUTH_TIMEOUT_MS = 10000;
+const DEFAULT_DATADIS_BASE_URL = "https://api.datadis.es/api/v1";
+const DEFAULT_DATADIS_DATE_SEPARATOR = "/";
+
+function formatDatadisDate(date: Date, separator = DEFAULT_DATADIS_DATE_SEPARATOR) {
+  const year = date.getUTCFullYear();
+  const monthValue = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const dayValue = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}${separator}${monthValue}${separator}${dayValue}`;
+}
 
 function getMonthRange(month: string) {
   const [year, monthValue] = month.split("-").map(Number);
   const start = new Date(Date.UTC(year, monthValue - 1, 1));
   const end = new Date(Date.UTC(year, monthValue, 0));
-  const toIso = (date: Date) => date.toISOString().slice(0, 10);
+  const separator = process.env.DATADIS_DATE_SEPARATOR ?? DEFAULT_DATADIS_DATE_SEPARATOR;
+  const toDatadis = (date: Date) => formatDatadisDate(date, separator);
   return {
-    startDate: toIso(start),
-    endDate: toIso(end)
+    startDate: toDatadis(start),
+    endDate: toDatadis(end)
   };
 }
 
@@ -51,23 +64,53 @@ function normalizeDatadisDaily(records: DatadisConsumptionRecord[], month: strin
     return buildMockDaily(month);
   }
 
-  return records.map((record, index) => {
-    const date = record.date ?? record.day ?? `${month}-${String(index + 1).padStart(2, "0")}`;
-    const gridImportKwh =
-      record.value ?? record.energy ?? record.consumption ?? record.importKwh ?? 0;
+  const dailyTotals = new Map<string, number>();
+  const fallbackPrefix = `${month}-`;
 
-    return {
+  records.forEach((record, index) => {
+    const rawDate =
+      record.dateTime ??
+      record.datetime ??
+      record.date ??
+      record.day ??
+      `${fallbackPrefix}${String(index + 1).padStart(2, "0")}`;
+
+    const normalizedDate = rawDate
+      .slice(0, 10)
+      .replaceAll("/", "-")
+      .replace(/\s.*/, "");
+
+    const gridImportKwh =
+      record.value ??
+      record.energy ??
+      record.consumption ??
+      record.consumptionKwh ??
+      record.importKwh ??
+      0;
+
+    const previous = dailyTotals.get(normalizedDate) ?? 0;
+    dailyTotals.set(normalizedDate, previous + gridImportKwh);
+  });
+
+  if (dailyTotals.size === 0) {
+    return buildMockDaily(month);
+  }
+
+  return Array.from(dailyTotals.entries())
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+    .map(([date, gridImportKwh]) => ({
       date,
       gridImportKwh,
       gridExportKwh: 0,
       pvProductionKwh: 0,
       loadConsumptionKwh: gridImportKwh
-    };
-  });
+    }));
 }
 
 async function fetchDatadisToken(): Promise<string> {
-  const authUrl = process.env.DATADIS_AUTH_URL;
+  const authUrl =
+    process.env.DATADIS_AUTH_URL ??
+    new URL("authorize", `${process.env.DATADIS_BASE_URL ?? DEFAULT_DATADIS_BASE_URL}/`).toString();
   const username = process.env.DATADIS_USERNAME;
   const password = process.env.DATADIS_PASSWORD;
 
@@ -100,11 +143,18 @@ async function fetchDatadisToken(): Promise<string> {
 }
 
 function buildDatadisUrl(month: string): string {
-  const baseUrl = process.env.DATADIS_CONSUMPTION_URL;
+  const baseUrl =
+    process.env.DATADIS_CONSUMPTION_URL ??
+    new URL("consumption", `${process.env.DATADIS_BASE_URL ?? DEFAULT_DATADIS_BASE_URL}/`).toString();
   const cups = process.env.DATADIS_CUPS;
+  const distributor = process.env.DATADIS_DISTRIBUTOR;
 
   if (!baseUrl || !cups) {
-    throw new Error("Faltan DATADIS_CONSUMPTION_URL o DATADIS_CUPS.");
+    throw new Error("Faltan DATADIS_CONSUMPTION_URL/DATADIS_BASE_URL o DATADIS_CUPS.");
+  }
+
+  if (!distributor && !process.env.DATADIS_CONSUMPTION_URL) {
+    throw new Error("Falta DATADIS_DISTRIBUTOR para la API oficial de Datadis.");
   }
 
   const { startDate, endDate } = getMonthRange(month);
@@ -112,6 +162,22 @@ function buildDatadisUrl(month: string): string {
   url.searchParams.set("cups", cups);
   url.searchParams.set("startDate", startDate);
   url.searchParams.set("endDate", endDate);
+  if (distributor) {
+    url.searchParams.set("distributor", distributor);
+  }
+
+  const measurementType = process.env.DATADIS_MEASUREMENT_TYPE;
+  const pointType = process.env.DATADIS_POINT_TYPE;
+  const granularity = process.env.DATADIS_GRANULARITY;
+  if (measurementType) {
+    url.searchParams.set("measurementType", measurementType);
+  }
+  if (pointType) {
+    url.searchParams.set("pointType", pointType);
+  }
+  if (granularity) {
+    url.searchParams.set("granularity", granularity);
+  }
 
   return url.toString();
 }
@@ -137,8 +203,10 @@ function resolveRecords(payload: unknown): DatadisConsumptionRecord[] {
 export async function fetchDatadisMonthlyData(month: string): Promise<DatadisMonthlyData> {
   const token = process.env.DATADIS_TOKEN;
   const hasEnv =
-    (process.env.DATADIS_CONSUMPTION_URL && process.env.DATADIS_CUPS) &&
-    (token || (process.env.DATADIS_AUTH_URL && process.env.DATADIS_USERNAME && process.env.DATADIS_PASSWORD));
+    (process.env.DATADIS_CUPS &&
+      (process.env.DATADIS_CONSUMPTION_URL || process.env.DATADIS_BASE_URL) &&
+      (process.env.DATADIS_CONSUMPTION_URL || process.env.DATADIS_DISTRIBUTOR)) &&
+    (token || (process.env.DATADIS_USERNAME && process.env.DATADIS_PASSWORD));
 
   if (!hasEnv) {
     const daily = buildMockDaily(month);

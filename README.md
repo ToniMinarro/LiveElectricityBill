@@ -25,13 +25,26 @@ Los conectores están simulados en `lib/providers`. Sustituye esos módulos por 
 Configura estas variables y deja las credenciales reales en tu entorno (por ejemplo, `.env.local`):
 
 ```bash
-DATADIS_AUTH_URL="https://.../auth"
-DATADIS_CONSUMPTION_URL="https://.../consumption"
+DATADIS_BASE_URL="https://api.datadis.es/api/v1"
 DATADIS_USERNAME="tu-usuario"
 DATADIS_PASSWORD="tu-password"
 DATADIS_CUPS="ESXXXXXXXXXXXXXXXX"
+DATADIS_DISTRIBUTOR="XXXX"
+
+# Opcionales si la API lo requiere (según DatadisAPI.html):
+# DATADIS_MEASUREMENT_TYPE="0"
+# DATADIS_POINT_TYPE="0"
+# DATADIS_GRANULARITY="D"
+# DATADIS_DATE_SEPARATOR="/"
 ```
 
 Si ya tienes un token, puedes usar `DATADIS_TOKEN` en lugar de usuario/contraseña.
+
+Si necesitas URLs personalizadas puedes definir:
+
+```bash
+DATADIS_AUTH_URL="https://.../authorize"
+DATADIS_CONSUMPTION_URL="https://.../consumption"
+```
 
 La tarifa por defecto está en `lib/config.ts`.
