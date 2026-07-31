@@ -1,9 +1,20 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-export const metadata = {
-  title: "Factura eléctrica en curso",
-  description: "Resumen en tiempo real del consumo y compensación solar."
+export const metadata: Metadata = {
+  metadataBase: new URL("https://live-electricity-bill.minarrolabs.dev"),
+  title: "Live Electricity Bill | Demo de dashboard energético",
+  description: "Demo de Minarrolabs para estimar una factura eléctrica con autoconsumo mediante datos simulados de consumo, producción solar y excedentes.",
+  alternates: {
+    canonical: "/"
+  },
+  openGraph: {
+    title: "Live Electricity Bill | Dashboard energético",
+    description: "Consumo, producción solar, excedentes y estimación de factura en un único panel.",
+    type: "website",
+    url: "/"
+  }
 };
 
 type RootLayoutProps = {
