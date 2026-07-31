@@ -34,3 +34,14 @@ export type MonthlySummary = {
   discrepancyPercent: number;
   daily: DailyEnergyRecord[];
 };
+
+export type SummarySources = {
+  datadisImportKwh: number;
+  datadisDays: number;
+  huaweiDays: number;
+  mode: "demo";
+};
+
+export type EnergySummary = MonthlySummary & {
+  sources: SummarySources;
+};
