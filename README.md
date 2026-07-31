@@ -1,8 +1,20 @@
-# LiveElectricityBill
+# Live Electricity Bill
 
-Página simple para estimar el importe de la factura eléctrica del mes en curso usando datos de Datadis y Huawei FusionSolar.
+Demo pública de Minarrolabs para visualizar consumo eléctrico, producción fotovoltaica, importación de red, excedentes y una estimación detallada de la factura mensual.
 
-<img width="1026" height="923" alt="image" src="https://github.com/user-attachments/assets/caa7079b-4a3e-4f29-95c5-3b4f324faf27" />
+La aplicación utiliza un mes completo de datos simulados y deterministas. Los valores presentan variaciones de consumo, fines de semana, producción solar y nubosidad para ofrecer una experiencia realista sin utilizar datos personales ni credenciales externas.
+
+## Funcionalidades
+
+- estimación del importe mensual;
+- consumo total de la vivienda;
+- producción y cobertura solar;
+- importación de red y excedentes;
+- compensación simplificada;
+- desglose de energía, costes fijos e impuestos;
+- gráfico diario de producción y consumo;
+- comparación entre distribuidora e inversor;
+- detalle de los últimos días registrados.
 
 ## Desarrollo
 
@@ -13,38 +25,37 @@ npm run dev
 
 Abre `http://localhost:3000`.
 
-## Configuración
-
-Los conectores están simulados en `lib/providers`. Sustituye esos módulos por llamadas reales a:
-
-- Datadis para consumo horario/diario.
-- Huawei FusionSolar Northbound API para importación/exportación, producción y consumo.
-
-### Variables de entorno para Datadis
-
-Configura estas variables y deja las credenciales reales en tu entorno (por ejemplo, `.env.local`):
+## Validación
 
 ```bash
-DATADIS_BASE_URL="https://api.datadis.es/api/v1"
-DATADIS_USERNAME="tu-usuario"
-DATADIS_PASSWORD="tu-password"
-DATADIS_CUPS="ESXXXXXXXXXXXXXXXX"
-DATADIS_DISTRIBUTOR="XXXX"
-
-# Opcionales si la API lo requiere (según DatadisAPI.html):
-# DATADIS_MEASUREMENT_TYPE="0"
-# DATADIS_POINT_TYPE="0"
-# DATADIS_GRANULARITY="D"
-# DATADIS_DATE_SEPARATOR="/"
+npm run build
+npm run start
 ```
 
-Si ya tienes un token, puedes usar `DATADIS_TOKEN` en lugar de usuario/contraseña.
+## Despliegue recomendado
 
-Si necesitas URLs personalizadas puedes definir:
+El proyecto está preparado para desplegarse en Vercel como aplicación Next.js.
 
-```bash
-DATADIS_AUTH_URL="https://.../authorize"
-DATADIS_CONSUMPTION_URL="https://.../consumption"
+1. Importar el repositorio `ToniMinarro/LiveElectricityBill` en Vercel.
+2. Usar la configuración automática de Next.js.
+3. Desplegar la rama `main` después de fusionar la PR.
+4. Añadir el dominio `live-electricity-bill.minarrolabs.dev` en Vercel.
+5. Crear en Namecheap el registro DNS solicitado por Vercel.
+
+Dominio previsto:
+
+```text
+https://live-electricity-bill.minarrolabs.dev
 ```
 
-La tarifa por defecto está en `lib/config.ts`.
+## Tecnología
+
+- Next.js 14;
+- React 18;
+- TypeScript;
+- API Route para preparar el resumen mensual;
+- CSS responsive sin librerías de gráficos.
+
+## Privacidad
+
+Todos los datos de la demo son simulados. La aplicación no consulta Datadis, Huawei FusionSolar ni ninguna instalación real.
