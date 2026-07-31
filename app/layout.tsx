@@ -1,5 +1,6 @@
 import "./globals.css";
 import "./brand.css";
+import "./system-theme.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
