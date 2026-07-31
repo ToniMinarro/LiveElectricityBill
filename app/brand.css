@@ -1,0 +1,7 @@
+.brand__mark {
+  overflow: hidden;
+  background: url("https://minarrolabs.dev/favicon.ico") center / cover no-repeat;
+  color: transparent;
+  font-size: 0;
+  box-shadow: none;
+}
