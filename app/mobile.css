@@ -1,0 +1,114 @@
+/* Responsive safeguards loaded after the main theme styles. */
+
+main,
+.site-header,
+.hero,
+.hero__copy,
+.hero__summary,
+.metrics,
+.dashboard-grid,
+.details-grid,
+.chart-shell,
+.panel,
+.metric-card,
+.efficiency-panel,
+.cost-panel,
+.source-panel,
+.table-panel,
+.demo-note {
+  min-width: 0;
+}
+
+.metric-card strong,
+.section-total,
+.hero__summary > strong,
+.cost-row span,
+.cost-row strong,
+.source-stats dd,
+th,
+td {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .chart-scroll,
+  .table-scroll {
+    width: 100%;
+    overflow-x: visible;
+  }
+
+  .energy-chart {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    padding: 11px 6px;
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  th {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  .hero__saving,
+  .cost-row > div:first-child {
+    align-items: flex-start;
+  }
+
+  .hero__saving strong,
+  .cost-row strong {
+    flex: 0 1 auto;
+    text-align: right;
+  }
+
+  .source-flow > div,
+  .source-stats div,
+  .badge {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  main {
+    padding-inline: 14px;
+  }
+
+  .chart-shell,
+  .panel,
+  .metric-card,
+  .hero__summary,
+  .demo-note {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .hero__badges,
+  .hero__meta,
+  .legend {
+    max-width: 100%;
+  }
+
+  .badge,
+  .hero__meta span,
+  .legend span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  th,
+  td {
+    padding-inline: 4px;
+    font-size: 10px;
+  }
+}
