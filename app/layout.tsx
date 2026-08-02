@@ -46,27 +46,33 @@ const themeToggleScript = `
 
   const mountToggle = () => {
     const header = document.querySelector(".site-header");
-    if (!(header instanceof HTMLElement) || document.getElementById("theme-toggle")) {
+    if (!(header instanceof HTMLElement)) {
       return;
     }
 
-    const backLink = header.querySelector(".back-link");
-    const actions = document.createElement("div");
-    actions.className = "site-header__actions";
+    let actions = header.querySelector(".site-header__actions");
+    if (!(actions instanceof HTMLElement)) {
+      actions = document.createElement("div");
+      actions.className = "site-header__actions";
 
-    if (backLink) {
-      backLink.replaceWith(actions);
-      actions.append(backLink);
-    } else {
-      header.append(actions);
+      const backLink = header.querySelector(".back-link");
+      if (backLink) {
+        backLink.replaceWith(actions);
+        actions.append(backLink);
+      } else {
+        header.append(actions);
+      }
     }
 
-    const button = document.createElement("button");
-    button.id = "theme-toggle";
-    button.className = "theme-toggle";
-    button.type = "button";
-    button.innerHTML = '<svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg><svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-    actions.append(button);
+    let button = document.getElementById("theme-toggle");
+    if (!(button instanceof HTMLButtonElement)) {
+      button = document.createElement("button");
+      button.id = "theme-toggle";
+      button.className = "theme-toggle";
+      button.type = "button";
+      button.innerHTML = '<svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg><svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+      actions.append(button);
+    }
 
     let themeColor = document.getElementById("theme-color");
     if (!(themeColor instanceof HTMLMetaElement)) {
@@ -101,10 +107,10 @@ const themeToggleScript = `
     });
   };
 
-  if (document.readyState === "complete") {
-    mountToggle();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountToggle, { once: true });
   } else {
-    window.addEventListener("load", mountToggle, { once: true });
+    mountToggle();
   }
 })();
 `;
