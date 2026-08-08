@@ -1,6 +1,6 @@
 # Live Electricity Bill
 
-Producto de Minarro Labs en estado de **demo funcional** para estimar una factura eléctrica mensual con autoconsumo fotovoltaico.
+Producto de Minarrolabs en estado de **demo funcional** para estimar una factura eléctrica mensual con autoconsumo fotovoltaico.
 
 Su objetivo es ofrecer una experiencia de análisis energético con datos simulados y una arquitectura preparada para integrar fuentes reales; su estado actual no implica todavía validación comercial ni comercialización general.
 
