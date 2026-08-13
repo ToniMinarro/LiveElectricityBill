@@ -1,8 +1,8 @@
 # Live Electricity Bill
 
-Producto de Minarrolabs en estado de **demo funcional** para estimar una factura eléctrica mensual con autoconsumo fotovoltaico.
+Demo de **dashboard e integración energética** de Minarrolabs para estimar una factura eléctrica mensual con autoconsumo fotovoltaico.
 
-Su objetivo es ofrecer una experiencia de análisis energético con datos simulados y una arquitectura preparada para integrar fuentes reales; su estado actual no implica todavía validación comercial ni comercialización general.
+Su objetivo es demostrar una experiencia de análisis energético con datos simulados y una arquitectura preparada para integrar fuentes reales como Datadis e inversores Huawei. Su estado actual no implica validación comercial ni que se trate de un SaaS/producto energético en comercialización.
 
 La aplicación reúne en un único dashboard:
 
@@ -56,7 +56,7 @@ npm run start
 El repositorio incluye `render.yaml` para crear un servicio web Node.js mediante un Blueprint.
 
 1. En Render, crea un **Blueprint** desde este repositorio.
-2. Despliega la rama `main` cuando la PR haya sido fusionada.
+2. Despliega la rama `main` cuando la PR haya sido fusionada y validada.
 3. Añade el dominio personalizado `live-electricity-bill.minarrolabs.dev`.
 4. En Namecheap, crea el CNAME que Render indique para el servicio.
 
